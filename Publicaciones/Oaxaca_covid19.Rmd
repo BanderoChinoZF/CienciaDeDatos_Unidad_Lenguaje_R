@@ -1,0 +1,70 @@
+---
+title: "Datos sobre COVID-19 En Oaxaca De Juarez"
+author: "Luis Angel Zaragoza Farrera"
+date: "17/6/2020"
+output: html_document
+---
+
+## Codigo Para Generar Dicha Grafica Del Estado De Oaxaca
+
+
+```{r include=TRUE}
+
+library(dplyr)
+library(readr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(ggrepel)
+library(gridExtra)
+library(gtable)
+
+#DATOS SOLAMENTE DE OAXACA
+oaxaca <- read_csv("C:/Users/luisa/Desktop/covidOAXACA.csv",
+                   col_types = cols(dateRep = col_date(format = "%d/%m/%Y")))
+
+#######CASOS ACUMULADOS
+plot6 <- ggplot(data = oaxaca)
+oaxaca_confirmados <- plot6 + geom_line(aes(x= dateRep, y= acumCases,color = "Red" ),size = 1) +
+  xlab("Fecha Del Caso") +
+  ylab("Personas Recuperadas") +
+  ggtitle("CASOS ACUMULADO EN OAXACA DE JUAREZ") +
+  scale_color_discrete(name = "acumCase") +
+  theme_minimal()
+
+#######DECESOS EN EL ESTADO DE OAXACA
+plot7 <- ggplot(data = oaxaca)
+oaxaca_decesoss <- plot7 + geom_line(aes(x= dateRep, y= acumDeaths,color = "red" ),size = 1) +
+  xlab("Fecha De Reporte") +
+  ylab("Decesos Acumulados") +
+  ggtitle("NUMERO DE FALLECIDOS ACUMULADO EN OAXACA DE JUAREZ POR COVID-19") +
+  scale_color_discrete(name = "acumDeath") +
+  theme_light()
+
+######PERSONAS RECUPERADAS EN EL ESTADO DE OAXACA
+plot8 <- ggplot(data = oaxaca)
+oaxaca_recuperados <- plot8 + geom_line(aes(x= dateRep, y= recovered, color = "red" ),size = 1) +
+  xlab("Fecha De Reporte") +
+  ylab("Recuperado Por COVID-19") +
+  ggtitle("PERSONAS RECUPERADAS EN OAXACA DE JUAREZ POR COVID-19") +
+  scale_color_discrete(name = "recovered") +
+  theme_light()
+
+
+```
+
+## INCLUIMOS LA GRAFICA DE DATOS EN EL ESTADO DE OAXACA
+
+You can also embed plots, for example:
+
+```{r pressure, echo=TRUE}
+
+grid.arrange(oaxaca_confirmados,oaxaca_decesoss,oaxaca_recuperados,nrow=3)
+
+```
+
+
+
+
+

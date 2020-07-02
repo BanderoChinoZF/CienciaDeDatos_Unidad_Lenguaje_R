@@ -1,0 +1,77 @@
+---
+title: "America Latina, Casos Acumulados Por COVID-19"
+author: "Luis Angel Zaragoza Farrera"
+date: "17/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PAISES LATINOS PANDEMIA POR COVID-19
+
+```{r include=FALSE}
+library(dplyr)
+library(readr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(ggrepel)
+library(gridExtra)
+library(gtable)
+
+covid_worldwide <- read_csv("C:/Users/luisa/Desktop/covid19-worldwide.csv",
+                      col_types = cols(dateRep = col_date(format = "%d/%m/%Y")))
+
+worldwide_completo <- mutate(
+          group_by(arrange(covid_worldwide, countriesAndTerritories, dateRep),
+          countriesAndTerritories), 
+          acumuladocases = cumsum(cases), 
+          acumuladodeaths = cumsum(deaths))
+worldwide_completo <- mutate(worldwide_completo, 
+                             propdeaths = acumuladodeaths * 100/ acumuladocases)
+
+
+continente_america <- filter( worldwide_completo, continentExp == "America")
+
+variosamerica <- filter( continente_america, 
+                         countriesAndTerritories == "Mexico" | 
+                           countriesAndTerritories == "Argentina" | 
+                           countriesAndTerritories == "Bolivia" | 
+                           countriesAndTerritories == "Colombia" | 
+                           countriesAndTerritories == "Ecuador" |
+                           countriesAndTerritories == "Chile" |
+                           countriesAndTerritories == "Peru" |
+                           countriesAndTerritories == "Brazil" |
+                           countriesAndTerritories == "Uruguay")
+
+mexico <- filter(continente_america, countriesAndTerritories == "Mexico")
+
+covid_recuperado_AL <- read_csv("C:/Users/luisa/Desktop/recuperados_bienChido.csv",
+                                col_types = cols(dateRep = col_date(format = "%d/%m/%Y")))
+
+novel_covid_recuperados <- read_csv("C:/Users/luisa/Desktop/time_series_covid19_recovered_global.csv")
+
+mexico_ <- filter(novel_covid_recuperados, Country_Region == "Mexico")
+mexico_muertes <- filter(continente_america, countriesAndTerritories == "Mexico")
+mexico_recovered <- filter(covid_recuperado_AL, country == "Mexico")
+
+plot5 <- ggplot(data = covid_recuperado_AL)
+plotAmerica_recovered <- plot5 + geom_line(aes(x= dateRep, y= recovered,color = country ),size = 1) +
+  xlab("Fecha del casos reportados") +
+  ylab("Personas Recuperadas") +
+  ggtitle("Personas Recuperadas Por COVID-19 En Paises De LATAM") +
+  scale_color_discrete(name = "conuntry") +
+  theme_economist() + facet_wrap( ~ country, ncol=3)
+
+```
+
+```{r echo=TRUE}
+
+plotAmerica_recovered
+
+```
+
+

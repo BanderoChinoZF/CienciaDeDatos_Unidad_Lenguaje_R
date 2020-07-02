@@ -1,0 +1,95 @@
+---
+title: "Mexico_COVID19"
+author: "Luis Angel Zaragoza Farrera"
+date: "16/6/2020"
+output: html_document
+---
+
+## México Panorana Del COVID-19 Al 14/06/2020
+LAS SIGUIENTES GRAFICAS SE REALIZARON PARA VIZUALIZAR UN PANORAMA DE COMO
+VA MEXICO EN LA PANDEMIA ACTUAL DE COVID-19, CASOS ACUMULADOS, DECESOS Y PERSONAS RECUPERADAS.
+
+## Incluyo la siguiente grafica.
+
+```{r include=FALSE}
+library(dplyr)
+library(readr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(ggrepel)
+library(gridExtra)
+library(gtable)
+
+covid_worldwide <- read_csv("C:/Users/luisa/Desktop/covid19-worldwide.csv",
+                      col_types = cols(dateRep = col_date(format = "%d/%m/%Y")))
+
+worldwide_completo <- mutate(
+          group_by(arrange(covid_worldwide, countriesAndTerritories, dateRep),
+          countriesAndTerritories), 
+          acumuladocases = cumsum(cases), 
+          acumuladodeaths = cumsum(deaths))
+worldwide_completo <- mutate(worldwide_completo, 
+                             propdeaths = acumuladodeaths * 100/ acumuladocases)
+
+
+continente_america <- filter( worldwide_completo, continentExp == "America")
+
+variosamerica <- filter( continente_america, 
+                         countriesAndTerritories == "Mexico" | 
+                           countriesAndTerritories == "Argentina" | 
+                           countriesAndTerritories == "Bolivia" | 
+                           countriesAndTerritories == "Colombia" | 
+                           countriesAndTerritories == "Ecuador" |
+                           countriesAndTerritories == "Chile" |
+                           countriesAndTerritories == "Peru" |
+                           countriesAndTerritories == "Brazil" |
+                           countriesAndTerritories == "Uruguay")
+
+mexico <- filter(continente_america, countriesAndTerritories == "Mexico")
+
+covid_recuperado_AL <- read_csv("C:/Users/luisa/Desktop/recuperados_bienChido.csv",
+                                col_types = cols(dateRep = col_date(format = "%d/%m/%Y")))
+
+novel_covid_recuperados <- read_csv("C:/Users/luisa/Desktop/time_series_covid19_recovered_global.csv")
+
+mexico_ <- filter(novel_covid_recuperados, Country_Region == "Mexico")
+mexico_muertes <- filter(continente_america, countriesAndTerritories == "Mexico")
+mexico_recovered <- filter(covid_recuperado_AL, country == "Mexico")
+
+p2 <- ggplot(data = mexico_recovered)
+plotMexico_recovered <- p2 + geom_point(aes(x= dateRep, y= recovered),size = 1, color = "blue" ) +
+  xlab("Corte Del Dia") +
+  ylab("Acumulado Recuperados") +
+  ggtitle("Personas Recuperadas En México") +
+  scale_color_discrete(name = "countriesAndTerritories") +
+  theme_economist()
+
+p1 <- ggplot(data= mexico_muertes)
+plotMexico <- p1 + geom_point(aes(x= dateRep, y= propdeaths),size = 1, color = "black" ) +
+  xlab("Corte Del Dia") +
+  ylab("Indice de mortalidad") +
+  ggtitle("Indice De Mortalidad Por COVID-19 En México") +
+  scale_color_discrete(name = "countriesAndTerritories") +
+  theme_economist()
+
+p3 <- ggplot(data = mexico)
+plotMexico_Acumulados <- p3 + geom_point(aes(x= dateRep, y= acumuladocases),size = 1, color = "red" ) +
+  xlab("Fecha Del Reporte") +
+  ylab("Casos Acumulados De COVID-19") +
+  ggtitle("Casos Acumulados Por COVID-19 En México") +
+  scale_color_discrete(name = "countriesAndTerritories") +
+  theme_economist()
+plotMexico_Acumulados
+
+
+```
+
+```{r echo=TRUE}
+
+grid.arrange(plotMexico_Acumulados,plotMexico_recovered,plotMexico,nrow=3)
+
+```
+
+
